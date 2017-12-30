@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 // this is a middleware - it forwards the request on to the next handler
 app.get(/big.*/, (req, res, next) => {
   console.log('BIG USER ACCESS');
-  // let other route handlers continute processing this request
+  // let other route handlers continue processing this request
   next();
 });
 
