@@ -6,7 +6,27 @@ html(lang="en")
   body
     h1 Pug!
 
-    ul
-      each user in users
-        li
-          a(href=`/${user.username}`)= user.name.full
+    each user in users
+      div
+        // we don't specify the folder here - express' static is already looking
+        // in /images because we defined static to look there
+        dl
+          dt
+            img(src=`${user.username}_sm.jpg`)
+          dd
+            | served without path. Express picks it up as a static asset,
+            | and uses the /images path to serve the asset
+
+
+        // we can also specify 'directories' for our files, even if they don't
+        // appear in those directories
+        // Express can then be configured that when a static resource with
+        // /profilepics in the path is encountered, to handle it specifically
+        dl
+          dt
+            img(src=`/profilepics/${user.username}_sm.jpg`)
+          dd
+            | served with a path that doesn't exist, that we handle with
+            | express to serve the asset
+
+        a(href=`/${user.username}`)= user.name.full

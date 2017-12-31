@@ -16,28 +16,19 @@ fs.readFile('users.json', {encoding: 'utf8'}, (err, data) => {
   });
 });
 
-// not all templating engines support express.
-// consolidate handles that for us.
-// We specify the format to evaluate, and the engine to use when that format is
-// used.
-// In this case, whenever a response is rendered with handlebars, use consolidate
-// to handle the rendering
 app.engine('hbs', cons.handlebars);
 
-// instead of rendering markup directly via our route handler, we can use
-// express' support for templating engines
-// [1] configure where express gets templates from
-app.set('views', './views');
-// [2] set the template engine to pug
+app.set('views', `${__dirname}/views`);
 app.set('view engine', 'pug');
 
+app.use(express.static(`${__dirname}/images`));
+
+// we can set a handle for requests at a specific path. We can have
+// images specify that this is their path, and ther request is then
+// handled by serving images at /images instead
+app.use('/profilepics', express.static(`${__dirname}/images`));
+
 app.get('/', (req, res) => {
-  // the users object is now available in the template as users
-
-  // even though our template engine is set to pug, we can override that by
-  // specifying the extension
-  // res.render('index.hbs', {users});
-
   res.render('index', {users});
 });
 
@@ -46,10 +37,11 @@ app.get(/big.*/, (req, res, next) => {
   next();
 });
 
+// render users using user.pug
 app.get('/:username', (req, res) => {
   const user = users.find(user => user.username === req.params.username);
 
-  res.send(JSON.stringify(user));
+  res.render('user', {user});
 });
 
 const server = app.listen(8080, () => {
