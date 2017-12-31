@@ -58,7 +58,29 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.get('/favicon.ico', (req, res) => res.end());
 
 app.get('/', (req, res) => {
-  res.render('index', {users});
+  let users = [];
+
+  fs.readdir('users', (err, files) => {
+    if (err) throw err;
+
+    files.map(file => {
+      fs.readFile(
+	path.join(__dirname, 'users', file),
+	{encoding: 'utf8'},
+	(e, data) => {
+	  if (e) throw e;
+	  const user = JSON.parse(data);
+
+	  user.name.full = _.startCase(`${user.name.first} ${user.name.last}`);
+	  users.push(user);
+
+	  if (users.filter(Boolean).length === files.length) {
+	    res.render('index', {users});
+	  }
+	}
+      );
+    });
+  });
 });
 
 app.get('/:username', (req, res) => {
