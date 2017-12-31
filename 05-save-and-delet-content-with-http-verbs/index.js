@@ -49,7 +49,9 @@ app.set('views', `${__dirname}/views`);
 app.set('view engine', 'pug');
 
 app.use('/profilepics', express.static(`${__dirname}/images`));
+
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 // handle requests for favicon before they get to any other handlers.
 // end the response
