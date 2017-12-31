@@ -33,15 +33,11 @@ const saveUser = (username, data) => {
   fs.writeFileSync(fp, JSON.stringify(data, null, 2), {encoding: 'utf8'});
 };
 
-fs.readFile('users.json', {encoding: 'utf8'}, (err, data) => {
-  if (err) throw err;
+const deleteUser = username => {
+  const fp = getUserFilePath(username);
 
-  users = JSON.parse(data).map(user => {
-    user.name.full = _.startCase(`${user.name.first} ${user.name.last}`);
-
-    return user;
-  });
-});
+  fs.unlinkSync(fp);
+};
 
 app.engine('pug', cons.pug);
 
@@ -67,19 +63,19 @@ app.get('/', (req, res) => {
 
     files.map(file => {
       fs.readFile(
-	path.join(__dirname, 'users', file),
-	{encoding: 'utf8'},
-	(e, data) => {
-	  if (e) throw e;
-	  const user = JSON.parse(data);
+        path.join(__dirname, 'users', file),
+        {encoding: 'utf8'},
+        (e, data) => {
+          if (e) throw e;
+          const user = JSON.parse(data);
 
-	  user.name.full = _.startCase(`${user.name.first} ${user.name.last}`);
-	  users.push(user);
+          user.name.full = _.startCase(`${user.name.first} ${user.name.last}`);
+          users.push(user);
 
-	  if (users.filter(Boolean).length === files.length) {
-	    res.render('index', {users});
-	  }
-	}
+          if (users.filter(Boolean).length === files.length) {
+            res.render('index', {users});
+          }
+        }
       );
     });
   });
