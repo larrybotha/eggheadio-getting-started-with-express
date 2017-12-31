@@ -50,14 +50,20 @@ script.
   const getFormField = id => document.getElementById(id).value;
 
   const save = () => {
-    fetch("/#{user.username}", {
-      method: 'PUT',
-      body: {
+    const body = JSON.stringify({
         street: getFormField('street'),
         city: getFormField('city'),
         state: getFormField('state'),
-        zip: getFormField('zip'),
-      }}).then(res => {
+       zip: getFormField('zip'),
+     });
+
+    fetch("/#{user.username}", {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'PUT',
+      body,
+    }).then(res => {
         cancel();
         location.reload();
       })
@@ -66,8 +72,7 @@ script.
   const del = () => {
     fetch("/#{user.username}", {method: 'DELETE' })
       .then(res => {
-        cancel();
-        location.reload();
+        location.replace('/');
       })
   }
 
