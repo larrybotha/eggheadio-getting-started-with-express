@@ -102,7 +102,7 @@ app.put('/:username', (req, res) => {
 
 app.delete('/:username', (req, res) => {
   deleteUser(req.params.username);
-  res.end();
+  res.sendStatus(200);
 });
 
 const server = app.listen(8080, () => {
