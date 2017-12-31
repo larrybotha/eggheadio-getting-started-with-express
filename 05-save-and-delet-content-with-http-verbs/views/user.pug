@@ -1,0 +1,74 @@
+doctype html
+html(lang="en")
+  head
+    title=`user ${user.name.full}`
+
+  body
+    p
+      a(href='/') back to users
+
+    h1= user.name.full
+
+    div
+      img(src=`/profilepics/${user.username}_lg.jpg`)
+
+      p
+        button(onclick="edit()") Edit
+        = ' '
+        button(onclick="del()") Delete
+
+    address
+      for key in Object.keys(address)
+        dl
+          dt= key
+          dd.view= address[key]
+          dd.edit
+            input(id=key, type="text", value=address[key])
+
+    .edit
+      button(onclick="save()") save
+      = ' '
+      button(onclick="cancel()") cancel
+
+script.
+  const views = [...document.querySelectorAll('.view')];
+  const edits = [...document.querySelectorAll('.edit')];
+
+  const hideElem = elem => elem.style.display = 'none';
+  const showElem = elem => elem.style.display = 'inherit';
+
+  const edit = () => {
+    views.map(v => hideElem(v));
+    edits.map(v => showElem(v));
+  }
+
+  const cancel = () => {
+    views.map(v => showElem(v));
+    edits.map(v => hideElem(v));
+  }
+
+  const getFormField = id => document.getElementById(id).value;
+
+  const save = () => {
+    fetch("/#{user.username}", {
+      method: 'PUT',
+      body: {
+        street: getFormField('street'),
+        city: getFormField('city'),
+        state: getFormField('state'),
+        zip: getFormField('zip'),
+      }}).then(res => {
+        cancel();
+        location.reload();
+      })
+  }
+
+  const del = () => {
+    fetch("/#{user.username}", {method: 'DELETE' })
+      .then(res => {
+        cancel();
+        location.reload();
+      })
+  }
+
+  cancel();
