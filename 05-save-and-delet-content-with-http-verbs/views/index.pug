@@ -1,0 +1,13 @@
+doctype html
+html(lang="en")
+  head
+    title="user index"
+
+  body
+    h1 Pug!
+
+    each user in users
+      div
+        img(src=`/profilepics/${user.username}_sm.jpg`)
+
+        a(href=`/${user.username}`)= user.name.full
