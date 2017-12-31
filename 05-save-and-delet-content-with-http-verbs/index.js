@@ -104,6 +104,11 @@ app.put('/:username', (req, res) => {
   res.end();
 });
 
+app.delete('/:username', (req, res) => {
+  deleteUser(req.params.username);
+  res.end();
+});
+
 const server = app.listen(8080, () => {
   console.log(`app running at ${server.address().port}`);
 });
