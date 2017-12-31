@@ -1,0 +1,12 @@
+doctype html
+html(lang="en")
+  head
+    title="user index"
+
+  body
+    h1 Pug!
+
+    ul
+      each user in users
+        li
+          a(href=`/${user.username}`)= user.name.full
