@@ -49,6 +49,7 @@ script.
 
   const getFormField = id => document.getElementById(id).value;
 
+  // save this user
   const save = () => {
     const body = JSON.stringify({
         street: getFormField('street'),
@@ -57,21 +58,29 @@ script.
        zip: getFormField('zip'),
      });
 
+    // PUT the body of the form updates to the same location on the server
     fetch("/#{user.username}", {
       headers: {
+        // notify the server of the type of content we are sending through
         'Content-Type': 'application/json',
       },
       method: 'PUT',
       body,
     }).then(res => {
+        // when the request succeeds (we should check for 200) hide the form
+        // inputs, and reload the page
+        // New data will reflect
         cancel();
         location.reload();
       })
   }
 
+  // make a request to delete the user
   const del = () => {
+    // issue a DELETE request to this user's page
     fetch("/#{user.username}", {method: 'DELETE' })
       .then(res => {
+        // when we get a success response, redirect the client to the index
         location.replace('/');
       })
   }
