@@ -6,47 +6,12 @@ const cons = require('consolidate');
 const bodyParser = require('body-parser');
 const app = express();
 
+// move helpers to their own file
+const helpers = require('./helpers');
+// import our username mini-app
+const userRouter = require('./username');
+
 let users = [];
-
-const verifyUser = (req, res, next) => {
-  const fp = getUserFilePath(req.params.username);
-
-  fs.access(fp, err => {
-    if (err) {
-      res.redirect(`/error/${req.params.username}`);
-    } else {
-      next();
-    }
-  });
-};
-
-const getUserFilePath = username =>
-  `${path.join(__dirname, 'users', username)}.json`;
-
-const getUser = username => {
-  let user = JSON.parse(
-    fs.readFileSync(getUserFilePath(username), {encoding: 'utf8'})
-  );
-  user.name.full = [user.name.first, user.name.last].join(' ');
-  _.keys(user.location).forEach(
-    key => (user.location[key] = _.startCase(user.location[key]))
-  );
-
-  return user;
-};
-
-const saveUser = (username, data) => {
-  const fp = getUserFilePath(username);
-
-  fs.unlinkSync(fp);
-  fs.writeFileSync(fp, JSON.stringify(data, null, 2), {encoding: 'utf8'});
-};
-
-const deleteUser = username => {
-  const fp = getUserFilePath(username);
-
-  fs.unlinkSync(fp);
-};
 
 app.engine('pug', cons.pug);
 
@@ -86,8 +51,11 @@ app.get('/', (req, res) => {
   });
 });
 
+// user our new userRouter to handle requests to /:username
+app.use('/:username', userRouter);
+
 app.get('/data/:username', (req, res) => {
-  const user = getUser(req.params.username);
+  const user = helpers.getUser(req.params.username);
 
   res.json(user);
 });
@@ -96,37 +64,38 @@ app.get('*.json', (req, res) => {
   res.download(`${__dirname}/users/${req.path}`);
 });
 
-app.all('/:username', (req, res, next) => {
-  console.log(req.method, 'for', req.params.username);
-  next();
-});
+// instead of having individual instances of app.get app.put etc we can
+// chain them by using app.route
+// app
+//   .route('/:username')
+//   .all((req, res, next) => {
+//     console.log(req.method, 'for', req.params.username);
+//     next();
+//   })
+//   .get(helpers.verifyUser, (req, res) => {
+//     const user = helpers.getUser(req.params.username);
 
-app.get('/:username', verifyUser, (req, res) => {
-  const user = getUser(req.params.username);
+//     res.render('user', {
+//       user,
+//       address: user.location,
+//     });
+//   })
+//   .put((req, res) => {
+//     const {username} = req.params;
+//     const user = helpers.getUser(username);
 
-  res.render('user', {
-    user,
-    address: user.location,
-  });
-});
+//     user.location = req.body;
+
+//     helpers.saveUser(username, user);
+//     res.end();
+//   })
+//   .delete((req, res) => {
+//     helpers.deleteUser(req.params.username);
+//     res.sendStatus(200);
+//   });
 
 app.get('/error/:username', (req, res) => {
   res.status(404).send(`user with username: ${req.params.username} not found`);
-});
-
-app.put('/:username', (req, res) => {
-  const {username} = req.params;
-  const user = getUser(username);
-
-  user.location = req.body;
-
-  saveUser(username, user);
-  res.end();
-});
-
-app.delete('/:username', (req, res) => {
-  deleteUser(req.params.username);
-  res.sendStatus(200);
 });
 
 const server = app.listen(8080, () => {
