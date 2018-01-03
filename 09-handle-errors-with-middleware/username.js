@@ -1,24 +1,20 @@
 const express = require('express');
 
-// If we don't set mergeParams to true, then params will not be sent through to
-// this router, and we get a weird error about 'Path must be a string'
-// We create a router object, which is actually an object that is available when
-// instantiating the app with express()
 const router = express.Router({mergeParams: true});
 
 const helpers = require('./helpers');
 
-// now we treat router as a mini-app
-// Instead of specifying the full path, we treat the router as the root of the
-// path. We define the root of the path on the app, and specify that this is the
-// router we want to use:
-// app.use('/:username', userRouter);
-router.all('/', (req, res, next) => {
+// We don't need 'all' here - we're telling the router to fire this handler for
+// all requests.
+// This is the same as using router.use(fn);
+// router.all('/', (req, res, next) => {
+// Our function here is a custom router-level middleware
+router.use((req, res, next) => {
   console.log(req.method, 'for', req.params.username);
   next();
 });
 
-router.get('/', helpers.verifyUser, (req, res) => {
+router.get('/', (req, res) => {
   const user = helpers.getUser(req.params.username);
 
   res.render('user', {
@@ -40,6 +36,17 @@ router.put('/', (req, res) => {
 router.delete('/', (req, res) => {
   helpers.deleteUser(req.params.username);
   res.sendStatus(200);
+});
+
+// We can define custom error handlers when defining middleware with 4 arguments
+// If we don't define our own error handler, express will invoke its own, which
+// shows stack trace info when not in production mode, and a 500 error when in
+// production mode
+router.use((err, req, res, next) => {
+  console.error(err.stack);
+
+  // notify the client that there was an error by specifying the status code
+  res.status(500).send('something went wrong');
 });
 
 module.exports = router;
