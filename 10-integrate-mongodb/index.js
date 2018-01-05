@@ -18,14 +18,11 @@ app.set('view engine', 'pug');
 
 app.use('/profilepics', express.static(`${__dirname}/images`));
 
-// No need for bodyParser - it's available with express now
-// These are all middlewares
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
 app.get('/favicon.ico', (req, res) => res.end());
 
-// Our handler here is a custom app-level middleware
 app.get('/', (req, res) => {
   let users = [];
 
