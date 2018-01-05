@@ -9,6 +9,8 @@ const app = express();
 const JSONStream = require('JSONStream');
 const userRouter = require('./username');
 
+const User = require('./db');
+
 let users = [];
 
 app.engine('pug', cons.pug);
@@ -22,31 +24,34 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
 app.get('/favicon.ico', (req, res) => res.end());
+app.get('/robots.txt', (req, res) => res.end());
 
 app.get('/', (req, res) => {
-  let users = [];
+  // let users = [];
 
-  fs.readdir('users', (err, files) => {
-    if (err) throw err;
+  // fs.readdir('users', (err, files) => {
+  //   if (err) throw err;
 
-    files.map(file => {
-      fs.readFile(
-        path.join(__dirname, 'users', file),
-        {encoding: 'utf8'},
-        (e, data) => {
-          if (e) throw e;
-          const user = JSON.parse(data);
+  //   files.map(file => {
+  //     fs.readFile(
+  //       path.join(__dirname, 'users', file),
+  //       {encoding: 'utf8'},
+  //       (e, data) => {
+  //         if (e) throw e;
+  //         const user = JSON.parse(data);
 
-          user.name.full = _.startCase(`${user.name.first} ${user.name.last}`);
-          users.push(user);
+  //         user.name.full = _.startCase(`${user.name.first} ${user.name.last}`);
+  //         users.push(user);
 
-          if (users.filter(Boolean).length === files.length) {
-            res.render('index', {users});
-          }
-        }
-      );
-    });
-  });
+  //         if (users.filter(Boolean).length === files.length) {
+  //           res.render('index', {users});
+  //         }
+  //       }
+  //     );
+  //   });
+  // });
+
+  User.find({}, (err, users) => res.render('index', {users}));
 });
 
 app.use('/:username', userRouter);
