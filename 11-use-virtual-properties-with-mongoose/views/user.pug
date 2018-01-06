@@ -22,6 +22,12 @@ html(lang="en")
         button(onclick="data()") Data
 
     address
+      dl
+        dt name
+        dd.view= user.name.full
+        dd.edit
+          input(id="name", type="text", value=user.name.full)
+
       for key in Object.keys(address)
         dl
           dt= key
@@ -55,10 +61,13 @@ script.
 
   const save = () => {
     const body = JSON.stringify({
+      name: getFormField('name'),
+      location: {
         street: getFormField('street'),
         city: getFormField('city'),
         state: getFormField('state'),
-       zip: getFormField('zip'),
+        zip: getFormField('zip'),
+      }
      });
 
     fetch("/#{user.username}", {

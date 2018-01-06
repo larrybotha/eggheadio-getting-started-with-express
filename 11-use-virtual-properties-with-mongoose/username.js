@@ -23,8 +23,27 @@ router.get('/', (req, res) => {
 router.put('/', (req, res) => {
   const {username} = req.params;
 
-  User.findOneAndUpdate({username}, {anything: req.body}, (err, user) => {
-    res.end();
+  // now that we have a virtual property we can't use findOneAndUpdate - it is
+  // convenience function available only for properties defined on the schema.
+  // What we need to do is find the specific record, and then manually save it.
+  // User.findOneAndUpdate(
+  //   {username},
+  //   {location: req.body.location, name: req.body.name},
+  //   (err, user) => {
+  //     res.end();
+  //   }
+  // );
+
+  // get the user
+  User.findOne({username: req.params.username}, (err, user) => {
+    if (err) console.log(err);
+
+    // assign properties direcly on the user
+    // We assign to the virtual property, which the setter than handles
+    user.name.full = req.body.name;
+    user.location = req.body.location;
+    // save the updates to the user, and then end the response.
+    user.save(() => res.end());
   });
 });
 
