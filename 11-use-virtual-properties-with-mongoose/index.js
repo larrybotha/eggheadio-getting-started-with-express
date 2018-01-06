@@ -27,30 +27,6 @@ app.get('/favicon.ico', (req, res) => res.end());
 app.get('/robots.txt', (req, res) => res.end());
 
 app.get('/', (req, res) => {
-  // let users = [];
-
-  // fs.readdir('users', (err, files) => {
-  //   if (err) throw err;
-
-  //   files.map(file => {
-  //     fs.readFile(
-  //       path.join(__dirname, 'users', file),
-  //       {encoding: 'utf8'},
-  //       (e, data) => {
-  //         if (e) throw e;
-  //         const user = JSON.parse(data);
-
-  //         user.name.full = _.startCase(`${user.name.first} ${user.name.last}`);
-  //         users.push(user);
-
-  //         if (users.filter(Boolean).length === files.length) {
-  //           res.render('index', {users});
-  //         }
-  //       }
-  //     );
-  //   });
-  // });
-
   User.find({}, (err, users) => res.render('index', {users}));
 });
 
